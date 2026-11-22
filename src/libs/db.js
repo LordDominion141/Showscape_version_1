@@ -13,7 +13,7 @@ if (!MONGODB_URI) {
 // 4. CHECK IF A GLOBAL CACHE ALREADY EXISTS; IF NOT, INITIALIZE IT IMMEDIATELY
 let cached = global.mongoose;
 
-if (!conn) {
+if (!cached) {
     cached = global.mongoose = {conn: null, promise: null};
 } 
 
@@ -24,10 +24,10 @@ const dbConnect = async () => {
         return cached.conn;
     }
     // B. If a connection isn't in progress, start a new one
-    if (!conn.promise) {
+    if (!cached.promise) {
         const opts = {
             bufferCommands: false,
-            serverSelectionectionTimeoutMS: 1000,
+            serverSelectionTimeoutMS: 1000,
             family: 4
         }
         cached.promise = mongoose.connect(MONGODB_URI, opts)
