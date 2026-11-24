@@ -8,6 +8,7 @@ import dbConnect from "@/libs/db";
 
 // 1. Move runtime reads (params, searchParams) and DB/GitHub fetches into a child component
 async function PreviewContent({ params, searchParams }) {
+    await connection();
     const { owner, repo } = await params;
     const { installation_id: installationId } = await searchParams;
 
@@ -16,7 +17,6 @@ async function PreviewContent({ params, searchParams }) {
     let errorMsg = null;
 
     try {
-        await connection();
         await dbConnect();
         const page = await Page.findOne({ owner, repo }).lean();
         if (page?.templateId) templateId = page.templateId;
