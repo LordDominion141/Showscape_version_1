@@ -2,7 +2,7 @@ import "./theme.css";
 
 export default function Layout({ children }) {
     return (
-        <div className="forest-theme">
+        <div className="docs-theme">
             {children}
         </div>
     );
