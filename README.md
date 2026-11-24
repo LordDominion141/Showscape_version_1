@@ -20,6 +20,10 @@ You can start editing the page by modifying `app/page.js`. The page auto-updates
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+## GitHub App webhooks
+
+Set the GitHub App webhook URL to `https://<your-domain>/api/webhooks/github`, configure its webhook secret as `GITHUB_WEBHOOK_SECRET`, and subscribe to the **Installation repositories** event. Added repositories are saved individually, and their page URLs are logged by the server.
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:

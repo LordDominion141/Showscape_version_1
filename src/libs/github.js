@@ -10,7 +10,7 @@ function getPrivateKey() {
     if (keyPath) {
         return fs.readFileSync(keyPath, 'utf-8');
     }
-    return process.env.GITHUB_APP_PRIVATE_KEY_PATH;
+    return process.env.GITHUB_APP_PRIVATE_KEY?.replace(/\\n/g, '\n');
 }
 
 // 3. INITIALIZE OCTOKIT APPLICATION

@@ -1,8 +1,8 @@
 import { auth } from "@/app/api/auth/[...nextauth]/route";
 import dbConnect from '@/libs/db.js';
 import User from '@/models/User.js';
-import Installation from '@/models/Installation.js';
 import { app } from "@/libs/github.js";
+import { saveInstallationRepositories } from "@/libs/github-installations.js";
 
 export async function GET(req) {
     const { searchParams, origin } = new URL(req.url);
@@ -25,23 +25,21 @@ export async function GET(req) {
     }
     
     const octokit = await app.getInstallationOctokit(Number(installationId));
-    const { data: repos } = await octokit.rest.apps.listReposAccessibleToInstallation();
-    const repoFullName = repos.repositories[0]?.full_name;
-    if (!repoFullName) return Response.redirect(`${origin}/pages/dashboard?install=norepo`);
+    const repositories = await octokit.paginate(
+        octokit.rest.apps.listReposAccessibleToInstallation,
+        { per_page: 100 }
+    );
+    if (repositories.length === 0) {
+        return Response.redirect(`${origin}/pages/dashboard?install=norepo`);
+    }
     
     await dbConnect();
     const user = await User.findOne({ githubId: String(session.user.githubId) });
-    await Installation.findOneAndUpdate(
-        { installationId: String(installationId) },
-        {
-            userId: user._id,
-            installationId: String(installationId),
-            repoFullName,
-            permissions: "read",
-        },
-        { upsert: true, runValidators: true }
-    );
+    if (!user) return new Response("Authenticated user was not found", { status: 404 });
 
-    console.log(`${origin}/pages/${user.username}/${repos.repositories[0]?.name}?installation_id=${installationId}`);
+    await saveInstallationRepositories(user._id, installationId, repositories);
+    for (const repo of repositories) {
+        console.log(`${origin}/pages/${repo.owner.login}/${repo.name}?installation_id=${installationId}`);
+    }
     return Response.redirect(`${origin}/pages/dashboard`);
 }
